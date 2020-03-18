@@ -1,0 +1,696 @@
+
+---
+title: <center> Is Gender Pay Gap Real? </center>
+output: html_document
+code_folding: hide
+---
+
+# {.tabset .tabset-fade}
+
+
+## Introduction
+
+### **Why Paying Equal is Important?** 
+
+Women work force is huge in the modern business world to underestimate it. They take place almost in any occupation from crane a tower operating to management. Although women attendance increase the work force, there is an ongoing contraversial debate whether women are paid as well as similar cohort of men.
+
+This can bring along many problems that affect employer and employee.
+
+* Employer practices such as setting prior salaries as reference cause lower pay for women which might affect employees' performance 
+
+* Low motivation of women by caused lower salaries might affect businesses. 
+
+* Gender pay gap might affect relationships among employees which might lower productivity of businesses. 
+
+### **Methodology For The Telltaling ** 
+To analyze whether these debates are constructed upon reality or not, the specific jobs data came from the [Census Bureau](https://www.census.gov/data/tables/time-series/demo/industry-occupation/median-earnings.html) and the historical data comes from the [Bureau of Labor](https://www.bls.gov/opub/ted/2012/ted_20121123.htm) will be analyzed.
+
+**Key variables includes:**
+
+* Year
+
+* Minor Categories
+
+* Total Earnings Male 
+
+* Total Earnings Female
+
+* Pay Gap 
+
+* Female Age Group 
+
+### **Analytical Approach**
+
+The proposed approach is to first plot the variables of interest by year. These graphs will help to shed light on any debate if women are discrimated over men in terms of salary based on industry.
+
+Then, it will be examined whether women salaries differ from men salaries based on their age group. If there i,  how the trend went by time will be examined to assess where we are today. After this point, the goal here would be to see  whether we need to do any adjustment to fix the situation for women and employers.
+
+#### **Mission**
+
+This analysis is intended to help women who are likely to face inequal salary although they do same job with same cohort of man. Also, it is aimed to informing employer gender pay gap is real or not. Based on this information, they can prevent legal consequences and may increase their women employer based on results.
+
+Ultimately, as a young women who are about to start her job, I would like to understand if gender pay gap exists or not. If there is, I would like to research about how I can protect myself as much as I can with deeper analysis based on race, ethnicity, religion.
+
+<br/>
+
+## Required Packages 
+
+The folowing packages will be used for running the code properly.
+
+
+### **Required Packages**
+
+
+```{r library, echo=TRUE, results='hide', message=FALSE}
+
+library(tidyverse) 
+library(readxl)
+library(DT)
+library(knitr)
+library(rmarkdown)
+library(ggthemes)
+library(plotly)
+library(kableExtra)
+
+```
+
+
+### **Library Index**
+
+
+* **DT:** Used to create featured data tables
+
+* **ggthemes:** Used for extra themes for ggplot2
+
+* **knitr:** Used for dynamic report generation
+
+* **plotly:** Used for dynamic plotting
+
+* **readxl:** Easy data transfer from excel 
+
+* **rmarkdown:** Converting R Markdown documents into a variety of formats
+
+* **tidyverse:** Easy installation of combined packages for data manipulation and visualization
+
+
+## Data Prep {.tabset .tabset-fade}
+
+### Data Source  
+The data used in the analysis can be found [here](https://github.com/rfordatascience/tidytuesday/tree/master/data/2019/2019-03-05)
+
+
+</br> 
+
+The data comes from **two different government bureaus**
+
+**1. United States Census Bureau, specific jobs data** 
+
+This files contains total number of male and female with years and female wages as percentage of male wages for each specific jobs. This data was collected from 2013 to 2016 to examine full time worker numbers and median salary in a certain type of jobs for each gender. The data set consist of 2088 observations and 12 variables
+
+First, we import the csv file and specify column names. There are few irrelevant columns for the analysis. That's why, some of them will be removed.
+
+**1. Bureau of Labor Statistics, historical data of aged groups** 
+
+The data files shows women age group with female wages as percentage of male wages for each year. Eventually, the original purpose of the data has same purpose with mine; exploring how women earnings as percent of men's changed from 1979 to 2011. This data set contains 264 obs and 3 variables
+
+
+### Data Import
+
+**Data Set 1 -- Age group** 
+
+First, I set my directory
+
+```{r}
+ opts_chunk$set("C:/Users/Beyza/Documents/MSIS/Courses/Fall 2019-2ndflex/Data Wrangling/Working Directory")
+
+adult <- read.csv2("C:/Users/Beyza/Documents/MSIS/Courses/Fall 2019-2ndflex/Data Wrangling/Working Directory/women/earnings_female.csv")
+```
+
+Second, the data set is imported
+```{r original data set, results='hide'}
+age.female.earnings <- read.csv("C:/Users/Beyza/Documents/MSIS/Courses/Fall 2019-2ndflex/Data Wrangling/Working Directory/women/earnings_female.csv", stringsAsFactors = FALSE)
+```
+
+Third, column names are displayed
+
+```{r, original variables, results='hide'}
+colnames(age.female.earnings)
+
+```
+
+```{r}
+dim(age.female.earnings)
+```
+
+**Data Set 2 -- Occupation_Salary** 
+
+Same steps are done with this data set as well
+
+The data set is imported
+```{r data set 2 import, results='hide'}
+occupation.salary <- read.csv("C:/Users/Beyza/Documents/MSIS/Courses/Fall 2019-2ndflex/Data Wrangling/Working Directory/women/jobs_gender.csv", stringsAsFactors = FALSE)
+```
+
+Column names are displayed
+
+```{r original variables data set 2, results='hide'}
+colnames(occupation.salary)
+
+```
+
+```{r second dataset size}
+
+dim(occupation.salary)
+
+```
+
+
+
+
+
+### Data Prep 
+
+**DATA SET 1 PREP**
+
+ I'll be not using total 16 years and older values, I'll skip total rows, first 16 rows. However; I would like to keep my column names. 
+
+```{r remove total columns}
+headers <- names(read.csv("C:/Users/Beyza/Documents/MSIS/Courses/Fall 2019-2ndflex/Data Wrangling/Working Directory/women/earnings_female.csv", stringsAsFactors = FALSE,  nrows = 1))
+
+new.age.female.earnings <- read.csv("C:/Users/Beyza/Documents/MSIS/Courses/Fall 2019-2ndflex/Data Wrangling/Working Directory/women/earnings_female.csv", stringsAsFactors = FALSE, header = F, col.names = headers, skip = 34 )
+
+
+```
+
+For more clarity, variable names will be changed
+
+```{r new variable names dataset1}
+
+names(new.age.female.earnings) <- c("year", "age.group", "female.wage.ratio.to.men")
+
+```
+
+Then, I'll truncated age.group variables since it was neccessarily long
+
+```{r truncate age group}
+new.age.female.earnings$age.group[new.age.female.earnings$age.group == "16-19 years"] <- "16-19"
+new.age.female.earnings$age.group[new.age.female.earnings$age.group == "20-24 years"] <- "20-24"
+new.age.female.earnings$age.group[new.age.female.earnings$age.group == "25-34 years"] <- "25-34"
+new.age.female.earnings$age.group[new.age.female.earnings$age.group == "35-44 years"] <- "35-44"
+new.age.female.earnings$age.group[new.age.female.earnings$age.group == "45-54 years"] <- "45-54"
+new.age.female.earnings$age.group[new.age.female.earnings$age.group == "55-64 years"] <- "55-64"
+new.age.female.earnings$age.group[new.age.female.earnings$age.group == "65 years and older"] <- "S"
+```
+
+Next step is checking for null values
+
+
+
+
+```{r null value check dataset1}
+ colSums(is.na(new.age.female.earnings))
+```
+
+After this step, I will move to next step because I don't have any null values in data set 1.
+
+**DATA SET 2 PREP**
+
+For this data set, I dropped some columns : total workers, female percentage, total earnings and occupation. The reasons for dropping them occupation gives extra detail and total workers, total earnings, female percent can be extracted from other columns if they are needed.
+
+```{r data set 2 drop columns}
+tidy.occupation.salary <- select(occupation.salary, -c(2,5,8,9))
+```
+
+Some of the variable names were changed for more clarity
+
+```{r data set 2 name change}
+names(tidy.occupation.salary) <- c("year", "maj_cat", "min_cat", "male_worker_no", "female_worker_no", "expected_male_earnings", "expected_fem_earnings", "fem.wage.ratio.to.men")
+```
+
+Next step is checking unique values for major and minor categories
+
+```{r dataset2 unique value check, results='hide'}
+sapply(tidy.occupation.salary,function(x) length(table(x)))
+
+```
+
+We can see that there are 8 unique major categories and 23 minor categories.
+
+Since the description is very long for major categories, we decided to truncate them but minor categories will be left as it is to prevent any confusion.
+
+```{r truncate maj_cat dataset 2}
+tidy.occupation.salary$maj_cat[tidy.occupation.salary$maj_cat == "Management, Business, and Financial" ] <- "MNG, BSN, FN" 
+tidy.occupation.salary$maj_cat[tidy.occupation.salary$maj_cat == "Computer, Engineering, and Science" ] <- " CMP, ENG, SCI "
+tidy.occupation.salary$maj_cat[tidy.occupation.salary$maj_cat == "Education, Legal, Community Service, Arts, and Media" ] <- "ED, LG, CM-SER, ART-MED"
+tidy.occupation.salary$maj_cat[tidy.occupation.salary$maj_cat == "Healthcare Practitioners and Technical" ] <- " HEALTHCARE PRC,TCH "
+tidy.occupation.salary$maj_cat[tidy.occupation.salary$maj_cat == "Service" ] <- " SRV"
+tidy.occupation.salary$maj_cat[tidy.occupation.salary$maj_cat == "Sales and Office" ] <- "SLS -OFC "
+tidy.occupation.salary$maj_cat[tidy.occupation.salary$maj_cat == "Natural Resources, Construction, and Maintenance" ] <- "NAT-RSC, CONST, MAINT "
+tidy.occupation.salary$maj_cat[tidy.occupation.salary$maj_cat == "Production, Transportation, and Material Moving" ] <- " PRD, TRNS, MAT-MOV "
+```
+
+Then I checked my missing values
+
+```{r missing values dataset 2, results='hide'}
+colSums(is.na(tidy.occupation.salary))
+```
+
+Unlike the data set 1, my data set 2 has missing values in columns expected_male_earnings, expected_fem_earning, fem.wage.ratio.to men. However, we can get the values for some of them from total earnings female and total earnings male since it is basically `total earnings femle/ total earnings_male`
+
+```{r detecting missing values more than 1 in a row}
+sub.missing.values <- tidy.occupation.salary %>% 
+   select(expected_male_earnings, expected_fem_earnings, fem.wage.ratio.to.men)
+   
+final.sub.missing <- sub.missing.values[rowSums(is.na(sub.missing.values)) > 1,]
+```
+So, I created new data frame which contains NA values that I can't extract by using `total earnings femle/ total earnings_male`
+
+We can see that 69 observations we are not able to fill. Since the missing values are less than 4% I decided to ignore these 69 observations. To do that I created a new variable and deleted old fem.wage.ratio.to.men.
+
+```{r missing values filling}
+final.tidy.occupation.salary <- tidy.occupation.salary[complete.cases(tidy.occupation.salary[, 6:7]),]
+```
+
+
+```{r}
+final.tidy.occupation.salary <- final.tidy.occupation.salary %>% 
+   mutate(calc.fem.wage.ratio.to.men = expected_fem_earnings/expected_male_earnings * 100)
+
+```
+
+
+```{r}
+
+final.tidy.occupation.salary <- select(final.tidy.occupation.salary,-fem.wage.ratio.to.men)
+
+```
+
+
+
+```{r}
+colSums(is.na(final.tidy.occupation.salary))
+```
+
+### Data Subsets 
+
+**Data Set1**
+For the data sets below, it will be examined how trend went for each group from 1979 to 2011. How each group changed for years.
+
+```{r dataset 1 group 1}
+age_subdata1 <- filter(new.age.female.earnings, age.group == "16-19")
+ age.subdata1.2 <- filter(new.age.female.earnings, age.group == "20-24")
+ age.subdata1.3 <- filter(new.age.female.earnings, age.group == "25-34")
+ age.subdata1.4 <- filter(new.age.female.earnings, age.group == "35-44")
+ age.subdata1.5 <- filter(new.age.female.earnings, age.group == "45-54")
+ age.subdata1.6 <- filter(new.age.female.earnings, age.group == "55-64")
+ age.subdata1.7 <- filter(new.age.female.earnings, age.group == "S")
+```
+
+I created new variable year group
+
+```{r dataset1 group 2, message = FALSE}
+
+by.year.group.earnings <- new.age.female.earnings %>% filter(year > 1978) %>%
+    transmute(age.group, female.wage.ratio.to.men, year.group = year)
+ 
+ by.year.group.earnings$year.group <- ifelse(by.year.group.earnings$year.group %in% c("1979","1980", "1981", "1982", "1983", "1984","1985", "1986", "1987","1988", "1989"), "1.Dec-1980",
+                                       ifelse(by.year.group.earnings$year.group %in% c("1990", "1991", "1992", "1993", "1994","1995", "1996", "1997","1998", "1999"), "2.Dec-1990s",
+                                       ifelse(by.year.group.earnings$year.group %in% c("2000", "2001", "2002", "2003", "2004","2005", "2006", "2007","2008", "2009","2010", "2011"), "3.Dec-2000s", "NA")))
+```
+
+The data set above is a part of the scenario in which we will examine how women wage ratio to men changed from 80s
+to 90s and 90s to 2000ths.
+
+Also, another variable ratio.difference was created to complete scenario of how women wage ratio to men changed from 80s.
+
+```{r dataset1 group 3}
+## 2nd new variable created avg.fem.wage.ratio
+
+age.subdata.9 <-  by.year.group.earnings %>% group_by(age.group, year.group) %>% 
+transmute( avg.fem.wage.ratio = mean(female.wage.ratio.to.men)) %>% 
+   unique() 
+
+##Spreding age.subdata.9 to calculate salary ratio difference
+ratio.difference <- age.subdata.9 %>% spread(key = year.group, value = avg.fem.wage.ratio)
+ratio.difference <- mutate(ratio.difference, change80sto90s = `2.Dec-1990s`- `1.Dec-1980`) 
+ratio.difference <- mutate(ratio.difference, change90sto2000s = `3.Dec-2000s`- `2.Dec-1990s`) %>% 
+   select(-`1.Dec-1980`)
+
+## Gathering Ratio Difference 
+ratio.difference <- ratio.difference %>% gather(`2.Dec-1990s`, `3.Dec-2000s`, key = year.group, value = avg.fem.wage.ratio) %>% 
+   gather(change80sto90s, change90sto2000s, key = change.type, value = wage.percent.change) 
+  
+
+```
+
+
+**Data Set2**
+```{r dataset2 group 1}
+
+occp.subdata1 <- filter(final.tidy.occupation.salary, maj_cat == "MNG, BSN, FN")
+occp.subdata2 <- filter(final.tidy.occupation.salary, maj_cat == " CMP, ENG, SCI ")  
+occp.subdata3 <- filter(final.tidy.occupation.salary, maj_cat == "ED, LG, CM-SER, ART-MED")
+occp.subdata4 <- filter(final.tidy.occupation.salary, min_cat == "Healthcare Practitioners and Technical")
+occp.subdata5 <- filter(final.tidy.occupation.salary, maj_cat == " SRV")
+occp.subdata6 <- filter(final.tidy.occupation.salary, maj_cat == "SLS -OFC ")
+occp.subdata7 <- filter(final.tidy.occupation.salary, maj_cat == "NAT-RSC, CONST, MAINT ")
+occp.subdata8 <- filter(final.tidy.occupation.salary, maj_cat == " PRD, TRNS, MAT-MOV ")
+```
+
+Based on major category and years, sub data groups are created. Each sub group shows from 2013 to 2016 for the variables. Later on, for each year and each category it might be created  mean and new data set can be created to analyze year by year how maj_cat changed for in terms of gender pay gap.
+
+```{r}
+
+graph.tidy.occupation <-  final.tidy.occupation.salary %>% 
+   group_by(maj_cat, min_cat, year) %>% 
+   transmute(med.fem.wage.ratio = median(calc.fem.wage.ratio.to.men)) %>% 
+   unique()
+
+agg.graph.tidy.occupation <- graph.tidy.occupation %>% group_by(min_cat) %>% 
+   summarise(med.fem.wage.ratio.agg = mean(med.fem.wage.ratio)) %>% 
+   arrange(desc(med.fem.wage.ratio.agg))
+```
+
+Graph tidy occupation table displays median percent of women wage to men for each minor
+category year by year. 
+
+Agg.graph.tidy.occupation table will be displayed to list minor categories from largest 
+median female wage ratio to men to smallest values. 
+
+Also, new data table graph employee was created to examine number of women employees ratio 
+to number of men employees
+
+```{r}
+graph.employee.no <- final.tidy.occupation.salary %>% select(year, min_cat, female_worker_no, male_worker_no) %>% 
+   group_by(min_cat, year) %>% 
+   transmute(male_worker_no, med.no.female = ceiling(median(female_worker_no))) %>% 
+   transmute(med.no.female, med.no.male = ceiling(median(male_worker_no))) %>% 
+   unique() %>% 
+   mutate(ratio.femnum.to.mennum = med.no.female/med.no.male*100)
+```
+
+
+
+
+
+### Clean Data
+
+```{r data dictionary, echo=FALSE}
+ opts_chunk$set("C:/Users/Beyza/Documents/MSIS/Courses/Fall 2019-2ndflex/Data Wrangling/Working Directory")
+
+data.dictionary <- read_xlsx("C:/Users/Beyza/Documents/MSIS/Courses/Fall 2019-2ndflex/Data Wrangling/Working Directory/women/dictionary.xlsx")
+
+kable(data.dictionary) %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = F, fixed_thead = T, )
+```
+
+
+```{r clean data set}
+
+library(DT)
+datatable(head(new.age.female.earnings,50))
+
+```
+
+```{r clean date set 2}
+library(DT)
+datatable(head(final.tidy.occupation.salary, 50))
+
+```
+
+
+
+
+
+## Explatory Data Analyze
+
+***Graph Usage***
+
+To assess better to analyze, I'll be using box plot and also, bar chart. 
+
+***Explatory Techniques*** 
+
+I'll be examining items below
+
+* Based on women age group, how women salary percent over men's changed year by year
+
+* What is the change on women salary percent over men's from 80ths to 90ths and 90ths to 2000ths
+
+* Examining minor categories based on women salary over men salary percent 
+
+* How did each minor category changed year by year in terms of women salary to men salary percent 
+
+* Which minor categories are dominated by women which ones dominated by men
+
+
+Also for Analyze section, I am leaning towards to apply null test based on p values whether statisticallly it proves that there is gender pay gap or not. However, this is only rough plan. 
+
+
+## Visualizations {.tabset .tabset-fade}
+
+This section is intended to support or findings with bozplot and bar charts and line 
+charts
+
+### Female Wage to Men Wage by Age Group
+
+We plot the female wage percent to men by age group over the years from 1979 to 2011.
+There are multiple information extracted from the graphs below.
+
+* Over the years, 16-19 years old and seniors age group didn't show any significant increase or decrease.
+
+
+* From 20s to 34 years old showed significant increase in female wage percent to men
+
+```{r graph 1, echo = FALSE, message=FALSE}
+n <- new.age.female.earnings %>% ggplot(aes(x = year, y = female.wage.ratio.to.men, color = age.group)) +
+    geom_point() +
+    geom_smooth() +
+    facet_wrap(~age.group) +
+  theme_stata() +
+    ggtitle("Female Wage Ratio Change Values by Age Groups Year By Year",
+            subtitle = "From 1979 - 2011") +
+    labs(y = " " ) + 
+      scale_color_discrete(name = "Age Group")
+
+ggplotly(n)
+
+
+    
+    
+```
+
+### Female Wage Ratio Change by Age Groups by Decades
+
+To assess whether any decade has significant change in terms of female wage ratio to men,
+we plotted decades and change from 80ths to 90ths and 90ths to 2000s. 
+This showed us 80ths to 90ths has more increase in every age group other than 55-64 years old female wage ratio to men than 90ths to 2000s 
+
+
+```{r Female Wage Ratio Change, echo = FALSE}
+a <- ratio.difference %>% ggplot(aes(age.group, wage.percent.change, fill = change.type)) + geom_bar(position = "dodge", stat = "identity") +
+    ggtitle("Female Wage Ratio Change Values by Decades & Age Groups",
+            subtitle = "From 1979 - 2011") +
+    labs(x = "Age Group", y = "Wage Percent Change" ) +
+  scale_fill_discrete(name = "Decade")+
+  theme(legend.position = "BOTTOM") 
+  
+  
+    ggplotly(a)
+```
+
+
+### Minor Category Graphs {.tabset .tabset-fade}
+
+#### List
+
+We calculated median female wage ratio for each minor category to assess in which group women are more closer to earn as much as men. The list showed that Community and Social Services have less pay gender gap.
+
+```{r displaying minor category wage rate}
+library(DT)
+datatable(head(agg.graph.tidy.occupation, 25))
+```
+
+#### Each Minor Category Fem Male Wage Ratio
+To assess whether we should use the median or mean we plot each minor category. This helped us to see outliers in each group. That's why we decided to use median. 
+
+Also, this gives great details for each minor category to see the quantiles 
+
+```{r occupation subdata 1, echo=FALSE}
+
+p1 <- occp.subdata1 %>% ggplot(aes(x=maj_cat, y= calc.fem.wage.ratio.to.men, color=min_cat))+
+   geom_boxplot()  + 
+   scale_y_continuous(breaks = seq(0, 300, 30))  +
+  ggtitle("Management, Business, and Finance")+
+  labs(x = "", y = "Wage Percent Change" )+
+  scale_color_discrete(name = "Minor Category") + coord_flip()
+
+
+
+```
+
+```{r occupation subdata 2, echo=FALSE}
+occp.subdata2 %>% ggplot(aes(x=maj_cat, y= calc.fem.wage.ratio.to.men, color=min_cat))+
+   geom_boxplot() + scale_y_continuous(breaks = seq(0, 300, 30))  +
+  ggtitle("Computer, Engineering, and Science") +
+  labs(x = "", y = "Female Wage Ratio To Men" ) + 
+  labs(x = "", y = "Wage Percent Change" )+
+  scale_color_discrete(name = "Minor Category") +coord_flip()
+  
+
+
+```
+
+```{r occupation subdata 3, echo=FALSE}
+occp.subdata3 %>% ggplot(aes(x=maj_cat, y= calc.fem.wage.ratio.to.men, color=min_cat))+
+   geom_boxplot()  + scale_y_continuous(breaks = seq(0, 300, 30))  +
+  ggtitle("Education, Legal, Community Service, Arts, and Media") +
+  labs(x = "", y = "Wage Percent Change" )+
+  scale_color_discrete(name = "Minor Category") +coord_flip()
+
+```
+
+```{r occupation subdata 4, echo=FALSE}
+occp.subdata4 %>% ggplot(aes(x=maj_cat, y= calc.fem.wage.ratio.to.men, color=min_cat))+
+   geom_boxplot()  + scale_y_continuous(breaks = seq(0, 300, 30)) +
+  ggtitle("Healthcare Practitioners and Technical") +
+  labs(x = "", y = "Wage Percent Change" ) +
+  scale_color_discrete(name = "Minor Category") + coord_flip()
+```
+
+```{r occupation subdata 5, echo=FALSE}
+occp.subdata5 %>% ggplot(aes(x=maj_cat, y= calc.fem.wage.ratio.to.men, color=min_cat)) +
+   geom_boxplot()  + scale_y_continuous(breaks = seq(0, 300, 25)) +
+  ggtitle("Service") +
+  labs(x = "", y = "Wage Percent Change" ) +
+  scale_color_discrete(name = "Minor Category") + coord_flip()
+```
+
+```{r occupation subdata 6, echo=FALSE}
+occp.subdata6 %>% ggplot(aes(x=maj_cat, y= calc.fem.wage.ratio.to.men, color=min_cat))+
+  geom_boxplot() + scale_y_continuous(breaks = seq(0, 300, 30))  +
+  ggtitle("Sales and Office") +
+  labs(x = "", y = "Wage Percent Change" ) +
+  scale_color_discrete(name = "Minor Category") + coord_flip()
+
+```
+
+
+```{r occupation subdata 7, echo=FALSE}
+occp.subdata7 %>% ggplot(aes(x=maj_cat, y= calc.fem.wage.ratio.to.men, color=min_cat))+
+   geom_boxplot()  + scale_y_continuous(breaks = seq(0, 300, 30)) +
+  ggtitle("Natural Resources, Construction, and Maintenance") +
+  labs(x = "", y = "Wage Percent Change" ) +
+  scale_color_discrete(name = "Minor Category") + coord_flip()
+```
+
+```{r occupation subdata 8, echo=FALSE}
+occp.subdata8 %>% ggplot(aes(x=maj_cat, y= calc.fem.wage.ratio.to.men, color=min_cat))+
+   geom_boxplot()  + scale_y_continuous(breaks = seq(0, 300, 30))  +
+  ggtitle("Production, Transportation, and Material Moving") +
+  labs(x = "", y = "Wage Percent Change" ) +
+  scale_color_discrete(name = "Minor Category") + coord_flip()
+```
+
+
+#### Median Female Wage to Men by Year 
+
+
+
+```{r over years ratio, echo = FALSE }
+graph.tidy.occupation %>% ggplot(aes(x = year, y = med.fem.wage.ratio, color = min_cat)) +
+   geom_point() +
+   geom_line() +
+   facet_wrap(~min_cat) + guides(color = FALSE)+
+  ggtitle("Median Women Wage to Men Wage Percent by Minor Categories Over Years") +
+  labs(x = " Year", y = " Median Women Wage Percent Over Men" )
+  
+```
+
+
+
+### Number of Women Employee vs Man Employee
+
+As we can see from the graph, men employee outweights 17 minor job category among total 23 minor category. Transportation minor category has lowest percent of women number to men number ratio , while Business and Financial Operations has women employees almost as many as men employee. Even, it exceeds men employee number at certain point.
+
+```{r women less than man, echo = FALSE}
+
+a <- c("Legal","Community and Social Service", "Education, Training, and Library", "Healthcare Practitioners and Technical", "Healthcare Support", "Office and Administrative Support")
+filter(graph.employee.no, !(min_cat %in% a)) %>% 
+   ggplot(aes(x = year, y = ratio.femnum.to.mennum , color = min_cat)) +
+   geom_line() +
+   facet_wrap(~min_cat) + guides(color = FALSE) +
+   ggtitle("Number of Women To Number Of Men Percent by Minor Categories Over Years") +
+   theme(legend.position = "none") +
+   labs(x = " Year", y = "" ) 
+  
+
+   
+
+```
+
+
+These categories are the ones women employee number exceeds men employee number. Strikingly, education, training and library category has almost 7 times more women employee number than men employee number. Even though women dominate these areas, their median wage percent to men is lower than 100%, which proves women earn less than men in these areas too.
+
+```{r more women categories, echo = FALSE}
+a <- c("Legal","Community and Social Service", "Education, Training, and Library", "Healthcare Practitioners and Technical", "Healthcare Support", "Office and Administrative Support")
+ c <- filter(graph.employee.no, (min_cat %in% a)) %>% 
+   ggplot(aes(x = year, y = ratio.femnum.to.mennum , color = min_cat)) +
+   geom_line() +
+   facet_wrap(~min_cat) + guides(color = FALSE) + 
+   theme(legend.position = "none") +
+ ggtitle("Number of Women To Number Of Men Percent by Minor Categories Over Years") +
+   labs(x = " Year", y = "" )
+
+ ggplotly(c)
+ 
+
+
+```
+ 
+
+
+
+
+## Conclusions 
+
+**Problem Statement**
+
+This analysis is intended to help readers (women, employer) form an opinion on women workforce in the job
+life, whether pay gap is an issue based on minor job categories, how did it changed over years. Supported by graphical representation and lists the focus of this analyis is the give an general opinion about women history in the work place in terms of earnings, age groups, and number of employees.
+
+**Methodology**
+
+In order to gain an clearer understanding whether women age group has effect in women wage to men wage ratio over time, we started by graphing women age group of female wage to men wage ratio by year. After seeing the overall trend, we examined which decade was revolutionary for women wage to close the pay gap. After that, we plot the major and minor categories with women wage to men wage ratio by year Then, check each minor group with box plot to see overall observations with outliers. Finally,  we also investigate the women employee number to men employee number ratio to understand which job groups are dominated 
+by men and which ones are dominated by women.
+
+**Insights**
+
+* Recently, women are about to earn as much as men in early career ages 20 to 34.
+
+* 80s to 90s are revolutionary for women to start closing pay gap especially women in range of 20 to 34 years old.
+
+* Community and Social Services has lowest pay gap while Legal and Sales Related categories have largest pay gap. 
+
+* Top 3 categories women over dominate are education-training-library, healthcare support,
+and legal. Although they over dominate, they don't earn as same as men earn.
+
+
+* Strikingly, legal is a minor category women over dominates and have one of the largest
+pay gap without any outliers.
+
+**Implications**
+
+This analyis can be used to gain an understanding of how women pay gap was strkingly ameliorated. We can see that the reason of the 80s to 90s are the decade women became 
+more stronger to get their rights. If we track it back, it is the decade in which women power  come up. Another implication might be that men are promoted easier than women. Although they earn very close to each other at the early beginning of their career, women earn much less than men. It brings a question to minds whether women and men have equal promotion factor.
+
+**Limitations**
+
+This analyis was limited by the lack of geographical, race, and religion data. We know that race and religion have effects on trends in women pay gap over time. Also, geographically, there might be areas where pay gap is larger.Next, I would like to incorporate data based on race and geography to reveal how race affects gender pay and which state has less pay gap. To do so, we would bring in variables such as state, race, religion, population by race etc.
+
+
+
+
+
+
+
+
