@@ -71,6 +71,7 @@ library(rmarkdown)
 library(ggthemes)
 library(plotly)
 library(kableExtra)
+library(here)
 
 ```
 
@@ -120,18 +121,13 @@ The data files shows women age group with female wages as percentage of male wag
 
 First, I set my directory
 
-```{r}
- opts_chunk$set("C:/Users/Beyza/Documents/MSIS/Courses/Fall 2019-2ndflex/Data Wrangling/Working Directory")
-
-adult <- read.csv2("C:/Users/Beyza/Documents/MSIS/Courses/Fall 2019-2ndflex/Data Wrangling/Working Directory/women/earnings_female.csv")
-```
-
-Second, the data set is imported
 ```{r original data set, results='hide'}
-age.female.earnings <- read.csv("C:/Users/Beyza/Documents/MSIS/Courses/Fall 2019-2ndflex/Data Wrangling/Working Directory/women/earnings_female.csv", stringsAsFactors = FALSE)
+
+age.female.earnings <- read.csv(here( "earnings_female.csv"),stringsAsFactors = FALSE)
 ```
 
-Third, column names are displayed
+
+Second, column names are displayed
 
 ```{r, original variables, results='hide'}
 colnames(age.female.earnings)
@@ -148,7 +144,8 @@ Same steps are done with this data set as well
 
 The data set is imported
 ```{r data set 2 import, results='hide'}
-occupation.salary <- read.csv("C:/Users/Beyza/Documents/MSIS/Courses/Fall 2019-2ndflex/Data Wrangling/Working Directory/women/jobs_gender.csv", stringsAsFactors = FALSE)
+occupation.salary<- read.csv(here( "jobs_gender.csv"),stringsAsFactors = FALSE)
+
 ```
 
 Column names are displayed
@@ -163,8 +160,6 @@ colnames(occupation.salary)
 dim(occupation.salary)
 
 ```
-
-
 
 
 
