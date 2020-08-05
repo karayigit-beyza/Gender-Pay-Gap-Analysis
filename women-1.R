@@ -8,6 +8,7 @@ install.packages("rmarkdown")
 install.packages("ggthemes")
 install.packages("plotly")
 install.packages("xlsx")
+install.packages("here")
 
 ### libraries 
 
@@ -19,19 +20,13 @@ library(knitr)
 library(rmarkdown)
 library(ggthemes)
 library(plotly)
+library(here)
  
-
-list.of.packages <- c("tidyverse", "readxl", "DT", "knitr", "rmarkdown", "ggthemes", "plotly")
-new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
-if(length(new.packages)) install.packages(new.packages, repos = "http://cran.us.r-project.org" )
-installed.packages()[,"Package"]
-
-setwd("C:/Users/Beyza/Documents/MSIS/Courses/Fall 2019-2ndflex/Data Wrangling/Working Directory")
 
 ### importing data set 1
 
 ### original data set 1 
- age.female.earnings <- read.csv("women/earnings_female.csv", stringsAsFactors = FALSE)
+age.female.earnings <- read.csv(here( "earnings_female.csv"),stringsAsFactors = FALSE)
 
 ### since I'll be not using total 16 years and older values, I'll skip these rows
 
